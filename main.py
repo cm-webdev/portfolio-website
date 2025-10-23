@@ -1,20 +1,22 @@
-from datetime import date
-from flask import Flask, abort, render_template, redirect, url_for, flash, request
-from flask_bootstrap import Bootstrap5
-from flask_ckeditor import CKEditor
-from flask_gravatar import Gravatar
-from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import Integer, String, Text
-from functools import wraps
-from werkzeug.security import generate_password_hash, check_password_hash
-from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 # Optional: add contact me email functionality (Day 60)
 # import smtplib
 import os
+from datetime import date
+from functools import wraps
 
-'''
+from flask import Flask, abort, flash, redirect, render_template, request, url_for
+from flask_bootstrap import Bootstrap5
+from flask_ckeditor import CKEditor
+from flask_gravatar import Gravatar
+from flask_login import LoginManager, UserMixin, current_user, login_user, logout_user
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Integer, String, Text
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from forms import CommentForm, CreatePostForm, LoginForm, RegisterForm
+
+"""
 Make sure the required packages are installed: 
 Open the Terminal in PyCharm (bottom left). 
 
@@ -25,11 +27,11 @@ On MacOS type:
 pip3 install -r requirements.txt
 
 This will install the packages from the requirements.txt for this project.
-'''
+"""
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
+app.config["SECRET_KEY"] = os.environ.get("FLASK_KEY")
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 
@@ -44,19 +46,24 @@ def load_user(user_id):
 
 
 # For adding profile images to the comment section
-gravatar = Gravatar(app,
-                    size=100,
-                    rating='g',
-                    default='retro',
-                    force_default=False,
-                    force_lower=False,
-                    use_ssl=False,
-                    base_url=None)
+gravatar = Gravatar(
+    app,
+    size=100,
+    rating="g",
+    default="retro",
+    force_default=False,
+    force_lower=False,
+    use_ssl=False,
+    base_url=None,
+)
+
 
 # CREATE DATABASE
 class Base(DeclarativeBase):
     pass
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///posts.db")
+
+
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DB_URI", "sqlite:///posts.db")
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
@@ -124,23 +131,23 @@ def admin_only(f):
 
 
 # Register new users into the User database
-@app.route('/register', methods=["GET", "POST"])
+@app.route("/register", methods=["GET", "POST"])
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
 
         # Check if user email is already present in the database.
-        result = db.session.execute(db.select(User).where(User.email == form.email.data))
+        result = db.session.execute(
+            db.select(User).where(User.email == form.email.data)
+        )
         user = result.scalar()
         if user:
             # User already exists
             flash("You've already signed up with that email, log in instead!")
-            return redirect(url_for('login'))
+            return redirect(url_for("login"))
 
         hash_and_salted_password = generate_password_hash(
-            form.password.data,
-            method='pbkdf2:sha256',
-            salt_length=8
+            form.password.data, method="pbkdf2:sha256", salt_length=8
         )
         new_user = User(
             email=form.email.data,
@@ -155,36 +162,38 @@ def register():
     return render_template("register.html", form=form, current_user=current_user)
 
 
-@app.route('/login', methods=["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
         password = form.password.data
-        result = db.session.execute(db.select(User).where(User.email == form.email.data))
+        result = db.session.execute(
+            db.select(User).where(User.email == form.email.data)
+        )
         # Note, email in db is unique so will only have one result.
         user = result.scalar()
         # Email doesn't exist
         if not user:
             flash("That email does not exist, please try again.")
-            return redirect(url_for('login'))
+            return redirect(url_for("login"))
         # Password incorrect
         elif not check_password_hash(user.password, password):
-            flash('Password incorrect, please try again.')
-            return redirect(url_for('login'))
+            flash("Password incorrect, please try again.")
+            return redirect(url_for("login"))
         else:
             login_user(user)
-            return redirect(url_for('get_all_posts'))
+            return redirect(url_for("get_all_posts"))
 
     return render_template("login.html", form=form, current_user=current_user)
 
 
-@app.route('/logout')
+@app.route("/logout")
 def logout():
     logout_user()
-    return redirect(url_for('get_all_posts'))
+    return redirect(url_for("get_all_posts"))
 
 
-@app.route('/')
+@app.route("/")
 def get_all_posts():
     result = db.session.execute(db.select(BlogPost))
     posts = result.scalars().all()
@@ -206,11 +215,13 @@ def show_post(post_id):
         new_comment = Comment(
             text=comment_form.comment_text.data,
             comment_author=current_user,
-            parent_post=requested_post
+            parent_post=requested_post,
         )
         db.session.add(new_comment)
         db.session.commit()
-    return render_template("post.html", post=requested_post, current_user=current_user, form=comment_form)
+    return render_template(
+        "post.html", post=requested_post, current_user=current_user, form=comment_form
+    )
 
 
 # Use a decorator so only an admin user can create new posts
@@ -225,7 +236,7 @@ def add_new_post():
             body=form.body.data,
             img_url=form.img_url.data,
             author=current_user,
-            date=date.today().strftime("%B %d, %Y")
+            date=date.today().strftime("%B %d, %Y"),
         )
         db.session.add(new_post)
         db.session.commit()
@@ -242,7 +253,7 @@ def edit_post(post_id):
         subtitle=post.subtitle,
         img_url=post.img_url,
         author=post.author,
-        body=post.body
+        body=post.body,
     )
     if edit_form.validate_on_submit():
         post.title = edit_form.title.data
@@ -252,7 +263,9 @@ def edit_post(post_id):
         post.body = edit_form.body.data
         db.session.commit()
         return redirect(url_for("show_post", post_id=post.id))
-    return render_template("make-post.html", form=edit_form, is_edit=True, current_user=current_user)
+    return render_template(
+        "make-post.html", form=edit_form, is_edit=True, current_user=current_user
+    )
 
 
 # Use a decorator so only an admin user can delete a post
@@ -262,7 +275,7 @@ def delete_post(post_id):
     post_to_delete = db.get_or_404(BlogPost, post_id)
     db.session.delete(post_to_delete)
     db.session.commit()
-    return redirect(url_for('get_all_posts'))
+    return redirect(url_for("get_all_posts"))
 
 
 @app.route("/about")
@@ -273,6 +286,7 @@ def about():
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
     return render_template("contact.html", current_user=current_user)
+
 
 # Optional: You can include the email sending code from Day 60:
 # DON'T put your email and password here directly! The code will be visible when you upload to Github.
@@ -296,6 +310,16 @@ def contact():
 #         connection.starttls()
 #         connection.login(MAIL_ADDRESS, MAIL_APP_PW)
 #         connection.sendmail(MAIL_ADDRESS, MAIL_APP_PW, email_message)
+
+
+@app.route("/morse-code", methods=["GET", "POST"])
+def morse_code():
+    result = ""
+    text = ""
+    if request.method == "POST":
+        text = request.form.get("text_input", "")
+        result = text_to_morse(text)
+    return render_template("projects/morse-code.html", result=result, text=text)
 
 
 if __name__ == "__main__":
