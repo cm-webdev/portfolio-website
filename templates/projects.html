@@ -1,0 +1,33 @@
+{% include "header.html" %}
+
+<!-- Page Header-->
+<header class="masthead" style="background-image: url('https://images.unsplash.com/photo-1712628956639-638ad87c988e')">
+    <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <div class="site-heading">
+                    <h1>{{ project.title if project.title else "Project" }}</h1>
+                    <span class="subheading">{{ project.subtitle if project.subtitle else "" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content-->
+<div class="container px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+        <div class="col-md-10 col-lg-8 col-xl-7">
+            {% block content %}
+            <!-- Project-specific content goes here -->
+            {% endblock %}
+
+            <!-- Optional back button -->
+            <div class="mt-4">
+                <a href="{{ url_for('get_all_posts') }}" class="btn btn-secondary">← Back to Blog</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "footer.html" %}

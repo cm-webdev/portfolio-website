@@ -15,6 +15,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from forms import CommentForm, CreatePostForm, LoginForm, RegisterForm
+from projects.morse_code.morse import text_to_morse
 
 """
 Make sure the required packages are installed: 
@@ -312,14 +313,21 @@ def contact():
 #         connection.sendmail(MAIL_ADDRESS, MAIL_APP_PW, email_message)
 
 
-@app.route("/morse-code", methods=["GET", "POST"])
+@app.route("/projects/morse-code", methods=["GET", "POST"])
 def morse_code():
-    result = ""
     text = ""
+    result = ""
     if request.method == "POST":
         text = request.form.get("text_input", "")
         result = text_to_morse(text)
-    return render_template("projects/morse-code.html", result=result, text=text)
+    # Pass dummy title/subtitle so template header looks right
+    project = {
+        "title": "Morse Code Converter",
+        "subtitle": "Convert text to Morse code easily",
+    }
+    return render_template(
+        "projects/morse-code.html", text=text, result=result, project=project
+    )
 
 
 if __name__ == "__main__":
