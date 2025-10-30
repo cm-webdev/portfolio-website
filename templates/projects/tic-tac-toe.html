@@ -1,0 +1,201 @@
+{% extends "projects.html" %}
+
+{# 1. FIX: Changed block_content to content to match projects.html #}
+{% block content %}
+
+<style>
+    /* Add basic styling to make it look like a terminal */
+    #terminal-container {
+        background-color: #1e1e1e;
+        color: #00ff00;
+        /* Neon green text */
+        font-family: 'Consolas', 'Courier New', monospace;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        height: 400px;
+        /* Set a fixed height for the whole terminal */
+        display: flex;
+        /* Use flexbox to control child elements */
+
+        flex-direction: column;
+        /* Stack children vertically */
+    }
+
+    #terminal-output {
+        flex-grow: 1;
+        /* Makes this div take up all available space */
+        overflow-y: auto;
+        /* Adds scrolling *only* to this div */
+    }
+
+    #terminal-output pre {
+        color: #00ff00;
+        white-space: pre;
+        /* Essential for preserving the board spacing */
+        margin: 0;
+        padding: 0;
+        font-size: 1.2em;
+        line-height: 1.2;
+    }
+
+    #terminal-input-line {
+        display: flex;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    #move_input {
+        background: transparent;
+        border: none;
+        color: #00ff00;
+        flex-grow: 1;
+        margin-left: 5px;
+        outline: none;
+        /* Hide default focus ring */
+    }
+
+    .terminal-button {
+        margin-left: 10px;
+        padding: 5px 10px;
+        background-color: #333;
+        color: #fff;
+        border: 1px solid #00ff00;
+        cursor: pointer;
+    }
+
+    .terminal-button:hover {
+        background-color: #00ff00;
+        color: #1e1e1e;
+    }
+</style>
+
+<div id="terminal-container">
+    <div id="terminal-output">
+        {# Initial board and message loaded from Flask (GET request) #}
+        {% if board_display and message %}
+        <pre>{{ board_display }}</pre>
+        <p style="margin: 0 0 5px 0;">{{ message }}</p>
+        {% endif %}
+    </div>
+
+    {# 2. FIX: Added the missing input form elements #}
+    <form id="move-form">
+        <div id="terminal-input-line">
+            <label id="prompt-label" for="move_input"></label>
+            <input type="text" id="move_input" name="move_input" pattern="[1-9]" maxlength="1" autofocus required {% if
+                is_over %}disabled{% endif %}>
+            <button type="submit" class="terminal-button">Enter</button>
+            <button type="button" id="reset-button" class="terminal-button">Reset</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Variables will now be correctly fetched because the script is at the bottom of the <body>
+    const terminalOutput = document.getElementById('terminal-output');
+    const moveForm = document.getElementById('move-form');
+    const resetButton = document.getElementById('reset-button');
+    const moveInput = document.getElementById('move_input');
+    const promptLabel = document.getElementById('prompt-label');
+
+    // Flag to ensure the initial Flask-rendered content is cleared only once.
+    let is_first_action = true;
+
+    // --- Initial Setup (New) ---
+    // Get the initial message passed from Flask to update the prompt label
+    const initialMessageElement = terminalOutput.querySelector('p');
+    if (initialMessageElement) {
+        promptLabel.textContent = initialMessageElement.textContent.trim();
+        // Remove the message from the output container, as it will be part of the prompt
+        // We'll keep the initial board display for the first load.
+        initialMessageElement.remove();
+    } else {
+        promptLabel.textContent = "Welcome! Enter a position (1-9): ";
+    }
+
+    // --- Helper function to append new output (Simplified) ---
+    function appendOutput(board, message) {
+        // 1. On the first successful action, clear the initial Flask-rendered content.
+        if (is_first_action) {
+            terminalOutput.innerHTML = ''; // Clear the initial board display
+            is_first_action = false;
+        }
+
+        // 2. Add the Board
+        const boardPre = document.createElement('pre');
+        boardPre.textContent = board;
+        terminalOutput.appendChild(boardPre);
+
+        // 3. Update the Prompt Label (more terminal-like)
+        promptLabel.textContent = message;
+
+        // Scroll to the bottom
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }
+
+    // --- Main handler for moves and resets ---
+    function handleGameAction(event, isReset = false) {
+        event.preventDefault();
+
+        // Prevent action if input is disabled (e.g., game over) and it's not a reset
+        if (moveInput.disabled && !isReset) return;
+
+        // 1. Simulate command entry in terminal (display what the user typed)
+        if (!isReset) {
+            const moveValue = moveInput.value;
+            const inputEcho = document.createElement('p');
+            inputEcho.textContent = `${promptLabel.textContent.trim()} ${moveValue}`;
+            inputEcho.style.margin = '0 0 5px 0';
+            terminalOutput.appendChild(inputEcho);
+        }
+
+        // 2. Prepare Data and AJAX Request
+        const url = "{{ url_for('tic_tac_toe') }}";
+        const data = isReset ? { reset: true } : { move_input: moveInput.value };
+
+        // Disable input while waiting for response
+        moveInput.disabled = true;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Update terminal output with new state
+                appendOutput(data.board_display, data.message);
+
+                // 3. Handle Game Over Status
+                if (data.is_over) {
+                    moveInput.disabled = true;
+                    promptLabel.textContent = `Game Over: ${data.message}`; // Final message
+                } else {
+                    moveInput.disabled = false;
+                }
+
+                // Clear input field and refocus
+                moveInput.value = '';
+                if (!data.is_over) {
+                    moveInput.focus();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Re-enable input on failure
+                moveInput.disabled = false;
+                promptLabel.textContent = "Error: Check console or reset.";
+            });
+    }
+
+    // --- Attach Event Listeners ---
+    moveForm.addEventListener('submit', handleGameAction);
+    resetButton.addEventListener('click', (event) => handleGameAction(event, true));
+</script>
+{% endblock %}

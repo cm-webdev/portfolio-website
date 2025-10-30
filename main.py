@@ -4,7 +4,18 @@ import os
 from datetime import date
 from functools import wraps
 
-from flask import Flask, abort, flash, redirect, render_template, request, url_for
+from dotenv import load_dotenv
+from flask import (
+    Flask,
+    abort,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
@@ -15,11 +26,19 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from forms import CommentForm, CreatePostForm, LoginForm, RegisterForm
-from projects.morse_code.morse import text_to_morse
+from projects.tic_tac_toe.tic_tac_toe_class import TicTacToe
+
+# from projects.morse_code.morse import text_to_morse
+# from projects.tic_tac_toe.tic_tac_toe import (
+#     check_draw,
+#     check_winner,
+#     init_board,
+#     make_move,
+#     print_board,
+# )
 
 """
 Make sure the required packages are installed: 
-Open the Terminal in PyCharm (bottom left). 
 
 On Windows type:
 python -m pip install -r requirements.txt
@@ -30,11 +49,14 @@ pip3 install -r requirements.txt
 This will install the packages from the requirements.txt for this project.
 """
 
+load_dotenv()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("FLASK_KEY")
 ckeditor = CKEditor(app)
 Bootstrap5(app)
+
+# ... rest of your Flask app code ..
 
 # Configure Flask-Login
 login_manager = LoginManager()
@@ -328,6 +350,111 @@ def morse_code():
     return render_template(
         "projects/morse-code.html", text=text, result=result, project=project
     )
+
+
+@app.route("/projects/tic-tac-toe", methods=["GET", "POST"])
+def tic_tac_toe():
+    # Define the project context needed by the base template (projects.html)
+    project_context = {
+        "title": "Tic-Tac-Toe Game",
+        # Add any other project attributes your projects.html template expects
+    }
+
+    # --- GET Request (Display the page) ---
+    if request.method == "GET":
+
+        # 1. Initialize or Load Game State
+        if "tictactoe_data" not in session:
+            game = TicTacToe()
+            session["tictactoe_data"] = game.get_board_state()
+        else:
+            game_data = session["tictactoe_data"]
+            game = TicTacToe(
+                board=game_data["board"],
+                current_player=game_data["current_player"],
+                status=game_data["status"],
+            )
+
+        # 2. Render Template
+        is_over = game.status != "In Play"
+
+        return render_template(
+            "projects/tic-tac-toe.html",
+            project=project_context,  # <-- FIX HERE
+            board_display=game.get_display(),
+            message=session["tictactoe_data"].get("message", "Welcome! X goes first."),
+            is_over=is_over,
+        )
+
+    # --- POST Request (Handle Move via AJAX/Form) ---
+    elif request.method == "POST":
+
+        # 1. Handle Reset
+        is_reset = request.form.get("reset") or (
+            request.is_json and request.get_json().get("reset")
+        )
+        if is_reset:
+            session.pop("tictactoe_data", None)
+            game = TicTacToe()
+            session["tictactoe_data"] = game.get_board_state()
+
+            # NOTE: If using the AJAX redirect fallback, you'd need the project context here too.
+            # But for a standard AJAX response, we just return the JSON.
+            return jsonify(
+                {
+                    "board_display": game.get_display(),
+                    "message": game.message,
+                    "is_over": False,
+                }
+            )
+
+        # 2. Get Move Input (logic remains the same)
+        if request.is_json:
+            data = request.get_json()
+            move = data.get("move_input")
+        else:
+            move = request.form.get("move_input")
+
+            # If this is a standard form submit (non-AJAX), we must REDIRECT,
+            # and the next GET will handle the project context.
+            if move and not request.is_json:
+                # Load, process move, save state (same as 3 & 4 below)
+                game_data = session["tictactoe_data"]
+                game = TicTacToe(
+                    board=game_data["board"],
+                    current_player=game_data["current_player"],
+                    status=game_data["status"],
+                )
+                # ... (move processing logic here) ...
+                game.make_move(int(move) - 1)
+                session["tictactoe_data"] = game.get_board_state()
+
+                # We need the redirect import: from flask import redirect, url_for
+                return redirect(url_for("tic_tac_toe"))
+
+        # 3. Load State and Process Move (AJAX path)
+        game_data = session["tictactoe_data"]
+        game = TicTacToe(
+            board=game_data["board"],
+            current_player=game_data["current_player"],
+            status=game_data["status"],
+        )
+
+        try:
+            game.make_move(int(move) - 1)
+        except Exception as e:
+            game.message = f"Error: {e}"
+
+        # 4. Save New State and Respond (JSON for AJAX)
+        session["tictactoe_data"] = game.get_board_state()
+
+        return jsonify(
+            {
+                "board_display": game.get_display(),
+                "message": game.message,
+                "is_over": game.status != "In Play",
+            }
+        )
 
 
 if __name__ == "__main__":
