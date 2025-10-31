@@ -12,12 +12,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # NEW STEP: Use a dedicated action to set up the SSH Agent and load the key
+      - name: Start SSH Agent and Load Key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }} # Inject the secret key
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3 # A reliable third-party SSH action
         with:
           host: ${{ secrets.HOST_IP }}
           username: ${{ secrets.HOST_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+
           request_pty: true
           script: |
             # 1. Navigate to the project directory
@@ -33,7 +39,7 @@ jobs:
             # pip install -r requirements.txt
 
             # 5. Collect static files (CRITICAL for web apps like Django/Flask)
-            python manage.py collectstatic --noinput
+            # python manage.py collectstatic --noinput
 
             # 6. Run database migrations (if applicable)
             # python manage.py migrate
