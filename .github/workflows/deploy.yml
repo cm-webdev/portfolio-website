@@ -18,7 +18,7 @@ jobs:
           host: ${{ secrets.HOST_IP }}
           username: ${{ secrets.HOST_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          request_pty: true
           script: |
             # 1. Navigate to the project directory
             cd /var/www/portfolio-website/
