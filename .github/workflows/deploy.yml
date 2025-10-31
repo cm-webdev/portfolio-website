@@ -43,6 +43,6 @@ jobs:
             # deactivate
 
             # 8. Restart Gunicorn service to apply changes
-            # sudo systemctl restart portfolio-website.service --no-block
+            (sudo systemctl restart portfolio-website.service &) 
 
-            exit
+            exit 0
