@@ -28,7 +28,7 @@ jobs:
             git pull origin master
 
             # 3. Activate the Python virtual environment
-            source venv/bin/activate
+            # source venv/bin/activate
 
             # 4. Reinstall dependencies (optional, but safe)
             # pip install -r requirements.txt
@@ -40,7 +40,9 @@ jobs:
             # python manage.py migrate
 
             # 7. Deactivate the virtual environment
-            deactivate
+            # deactivate
 
             # 8. Restart Gunicorn service to apply changes
-            sudo systemctl restart portfolio-website.service --no-block
+            # sudo systemctl restart portfolio-website.service --no-block
+
+            exit
