@@ -1,0 +1,44 @@
+name: Deploy to DigitalOcean Droplet
+
+on:
+  push:
+    branches:
+      - main # Change this to the branch you deploy from
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3 # A reliable third-party SSH action
+        with:
+          host: ${{ secrets.HOST_IP }}
+          username: ${{ secrets.HOST_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # 1. Navigate to the project directory
+            cd /var/www/portfolio-website/
+
+            # 2. Pull the latest code
+            git pull origin main
+
+            # 3. Activate the Python virtual environment
+            source venv/bin/activate
+
+            # 4. Reinstall dependencies (optional, but safe)
+            pip install -r requirements.txt
+
+            # 5. Collect static files (CRITICAL for web apps like Django/Flask)
+            python manage.py collectstatic --noinput
+
+            # 6. Run database migrations (if applicable)
+            # python manage.py migrate
+
+            # 7. Deactivate the virtual environment
+            deactivate
+
+            # 8. Restart Gunicorn service to apply changes
+            sudo systemctl restart portfolio-website.service
