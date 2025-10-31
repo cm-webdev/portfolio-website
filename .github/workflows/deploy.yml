@@ -23,7 +23,7 @@ jobs:
         with:
           host: ${{ secrets.HOST_IP }}
           username: ${{ secrets.HOST_USER }}
-
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           request_pty: true
           script: |
             # 1. Navigate to the project directory
