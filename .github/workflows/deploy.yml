@@ -3,7 +3,7 @@ name: Deploy to DigitalOcean Droplet
 on:
   push:
     branches:
-      - main # Change this to the branch you deploy from
+      - master # The branch to deploy from
 
 jobs:
   deploy:
@@ -23,13 +23,13 @@ jobs:
             cd /var/www/portfolio-website/
 
             # 2. Pull the latest code
-            git pull origin main
+            git pull origin master
 
             # 3. Activate the Python virtual environment
             source venv/bin/activate
 
             # 4. Reinstall dependencies (optional, but safe)
-            pip install -r requirements.txt
+            # pip install -r requirements.txt
 
             # 5. Collect static files (CRITICAL for web apps like Django/Flask)
             python manage.py collectstatic --noinput
