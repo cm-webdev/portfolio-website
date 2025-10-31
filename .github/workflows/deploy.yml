@@ -25,6 +25,7 @@ jobs:
           username: ${{ secrets.HOST_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           request_pty: true
+          envs: SSH_AUTH_SOCK,SSH_AGENT_PID
           script: |
             # 1. Navigate to the project directory
             cd /var/www/portfolio-website/
