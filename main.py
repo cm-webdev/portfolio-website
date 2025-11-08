@@ -26,7 +26,8 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from forms import CommentForm, CreatePostForm, LoginForm, RegisterForm
-from projects.tic_tac_toe.tic_tac_toe_class import TicTacToe
+
+# from projects.tic_tac_toe.tic_tac_toe_class import TicTacToe
 
 # from projects.morse_code.morse import text_to_morse
 # from projects.tic_tac_toe.tic_tac_toe import (
