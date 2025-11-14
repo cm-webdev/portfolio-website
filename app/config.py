@@ -4,7 +4,8 @@ import os
 class BaseConfig:
     """Base configuration shared across environments."""
 
-    SECRET_KEY = os.environ.get("FLASK_KEY")
+    SECRET_KEY = os.environ.get("FLASK_KEY") or "dev-secret-change-me"
+    WTF_CSRF_SECRET_KEY = SECRET_KEY
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
