@@ -39,7 +39,7 @@
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ms-auto py-4 py-lg-0">
           <li class="nav-item">
-            <a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('get_all_posts') }}">Home</a>
+            <a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('main.homepage') }}">Home</a>
           </li>
           <!-- Only show Login/Register if user is logged out. Otherwise show "Log Out" -->
           {% if not current_user.is_authenticated: %}
@@ -56,7 +56,7 @@
           </li>
           {% endif %}
           <li class="nav-item">
-            <a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('about') }}">About</a>
+            <a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('main.about') }}">About</a>
           </li>
           <li class="nav-item">
             <a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('contact') }}">Contact</a>
