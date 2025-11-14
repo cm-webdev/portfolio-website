@@ -29,8 +29,9 @@
           <!-- post.author.name is now a User object -->
           <a href="#">{{post.author.name}}</a>
           on {{post.date}}
-          <!-- Only show delete button if user id is 1 (admin user) -->
-          {% if current_user.id == 1: %}
+          <!-- Only show admin controls for edit if user is admin -->
+          {% if current_user.is_authenticated and current_user.id == 1: %}
+          <a href="{{ url_for('auth.edit_post', post_id=post.id) }}">✎</a>
           {% endif %}
         </p>
       </div>
