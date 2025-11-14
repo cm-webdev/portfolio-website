@@ -44,7 +44,7 @@
           <!-- Only show Login/Register if user is logged out. Otherwise show "Log Out" -->
           {% if not current_user.is_authenticated: %}
           <li class="nav-item">
-            <a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('login') }}">Login</a>
+            <a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('auth.login') }}">Login</a>
           </li>
           <!-- remove register -->
           <!-- <li class="nav-item"> -->
@@ -52,7 +52,7 @@
           <!-- </li> -->
           {% else: %}
           <li class="nav-item">
-            <a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('logout') }}">Log Out</a>
+            <a class="nav-link px-lg-3 py-3 py-lg-4" href="{{ url_for('auth.logout') }}">Log Out</a>
           </li>
           {% endif %}
           <li class="nav-item">
