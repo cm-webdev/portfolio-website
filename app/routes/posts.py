@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user
 
 from app.extensions import db
@@ -12,12 +12,7 @@ posts_bp = Blueprint("posts", __name__)
 def post_detail(slug):
     """Post detail view matching the existing logic in main.py."""
 
-    try:
-        post_id = int(slug)
-    except (TypeError, ValueError):
-        abort(404)
-
-    requested_post = db.get_or_404(BlogPost, post_id)
+    requested_post = BlogPost.query.filter_by(slug=slug).first_or_404()
     comment_form = CommentForm()
     if comment_form.validate_on_submit():
         if not current_user.is_authenticated:
