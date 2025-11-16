@@ -1,6 +1,6 @@
-{% include "header.html" %}
+{% extends "base.html" %}
 
-<!-- Page Header-->
+{% block content %}
 <header
   class="masthead"
   style="background-image: url('../static/assets/img/about-bg.jpg')"
@@ -16,16 +16,15 @@
     </div>
   </div>
 </header>
-<!-- Main Content-->
 <main class="mb-4">
   <div class="container px-4 px-lg-5">
     <div class="row gx-4 gx-lg-5 justify-content-center">
       <div class="col-md-10 col-lg-8 col-xl-7">
         <p>
-          After working mainly in IT support for many years I’ve focused on expanding my web
+          After working mainly in IT support for many years I've focused on expanding my web
           development skills, completing a Certificate 4 in Web Development in 2024. Working
           on freelance websites projects is something for many years and study a course on
-          Python would now I’d like to make it the focus of my career.
+          Python would now I'd like to make it the focus of my career.
         </p>
         <p>
           Work experience includes freelancing on a number of websites using the Wordpress
@@ -33,16 +32,15 @@
           plug-ins, doing updates and maintenance on the front and back end, as well as SEO
           for the websites. My goal is to attain a role as a python web developer and be able
           to work remotely from home. With skills in all areas including front and back end web
-          development, I’m looking to build on this and expand and learn new technologies.
+          development, I'm looking to build on this and expand and learn new technologies.
         </p>
         <p>
-          Learning new skills is something I’m passionate about. I worked with Python during the
+          Learning new skills is something I'm passionate about. I worked with Python during the
           Certificate 4 web development course and Django and other modern web development frameworks
-          are something I’m eager to get more experience with.
+          are something I'm eager to get more experience with.
         </p>
       </div>
     </div>
   </div>
 </main>
-
-{% include "footer.html" %}
+{% endblock %}

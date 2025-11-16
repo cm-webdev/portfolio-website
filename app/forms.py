@@ -2,11 +2,17 @@
 
 from functools import wraps
 
-from flask_ckeditor import CKEditorField
 from flask import abort
 from flask_login import current_user
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, PasswordField, StringField, SubmitField, TextAreaField
+from wtforms import (
+    BooleanField,
+    PasswordField,
+    SelectField,
+    StringField,
+    SubmitField,
+    TextAreaField,
+)
 from wtforms.validators import DataRequired, Length, Optional, URL
 
 
@@ -16,9 +22,18 @@ class CreatePostForm(FlaskForm):
     title = StringField("Blog Post Title", validators=[DataRequired()])
     subtitle = StringField("Subtitle", validators=[DataRequired()])
     img_url = StringField("Blog Image URL", validators=[DataRequired(), URL()])
-    body = CKEditorField("Blog Content", validators=[DataRequired()])
+    body = TextAreaField("Blog Content", validators=[DataRequired()])
     summary = TextAreaField("Summary", validators=[Optional(), Length(max=1000)])
-    category = StringField("Category", validators=[Optional(), Length(max=50)])
+    category = SelectField(
+        "Category",
+        choices=[
+            ("webapp", "Web app"),
+            ("gui", "GUI app"),
+            ("console", "Console / terminal"),
+            ("general", "General"),
+        ],
+        default="webapp",
+    )
     thumbnail_url = StringField(
         "Thumbnail URL", validators=[Optional(), URL(), Length(max=500)]
     )
@@ -26,7 +41,7 @@ class CreatePostForm(FlaskForm):
         "GitHub URL", validators=[Optional(), URL(), Length(max=500)]
     )
     live_url = StringField("Live URL", validators=[Optional(), URL(), Length(max=500)])
-    is_featured = BooleanField("Featured on homepage?")
+    is_featured = BooleanField("Featured project")
     submit = SubmitField("Submit Post")
 
 
@@ -50,7 +65,7 @@ class LoginForm(FlaskForm):
 class CommentForm(FlaskForm):
     """Form for adding a comment to a post."""
 
-    comment_text = CKEditorField("Comment", validators=[DataRequired()])
+    comment_text = TextAreaField("Comment", validators=[DataRequired()])
     submit = SubmitField("Submit Comment")
 
 

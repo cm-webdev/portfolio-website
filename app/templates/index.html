@@ -1,5 +1,6 @@
-{% include "header.html" %}
+{% extends "base.html" %}
 
+{% block content %}
 <!-- Page Header-->
 <header class="masthead" style="background-image: url('https://images.unsplash.com/photo-1712628956639-638ad87c988e')">
   <div class="container position-relative px-4 px-lg-5">
@@ -13,46 +14,70 @@
     </div>
   </div>
 </header>
-<!-- Main Content-->
-<div class="container px-4 px-lg-5">
-  <div class="row gx-4 gx-lg-5 justify-content-center">
-    <div class="col-md-12 col-lg-11 col-xl-10">
-      <!-- Post preview-->
-      {% for post in all_posts %}
-      <div class="post-preview">
-        <a href="{{ url_for('posts.post_detail', slug=post.slug or post.id) }}">
-          <h2 class="post-title">{{ post.title }}</h2>
-          <h3 class="post-subtitle">{{ post.subtitle }}</h3>
-        </a>
-        <p class="post-meta">
-          Posted by
-          <!-- post.author.name is now a User object -->
-          <a href="#">{{post.author.name}}</a>
-          on {{post.date}}
-          <!-- Only show admin controls for edit if user is admin -->
-          {% if current_user.is_authenticated and current_user.id == 1: %}
-          <a href="{{ url_for('auth.edit_post', post_id=post.id) }}">✎</a>
-          {% endif %}
-        </p>
-      </div>
-      <!-- Divider-->
-      <hr class="my-4" />
-      {% endfor %}
 
-      <!-- New Post -->
-      <!-- Only show Create Post button if user id is 1 (admin user) -->
-      {% if current_user.id == 1: %}
-      <div class="d-flex justify-content-end mb-4">
-        <a class="btn btn-primary float-right" href="{{ url_for('auth.admin_posts') }}">Create New Post</a>
-      </div>
-      {% endif %}
+<main class="mb-5">
+  <div class="container px-4 px-lg-5">
 
-      <!-- Pager-->
-      <div class="d-flex justify-content-end mb-4">
-        <a class="btn btn-secondary text-uppercase" href="#!">Older Posts →</a>
+    <!-- Featured Web App Projects (top row) -->
+    <section class="mb-5">
+      <h2 class="mb-4">Featured Web App Projects</h2>
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for post in featured_webapps %}
+          {% set thumb = post.thumbnail_url or post.img_url %}
+          <div class="col">
+            <div class="card h-100">
+              {% if thumb %}
+                <img src="{{ thumb }}" class="card-img-top project-thumb" alt="{{ post.title }}">
+              {% endif %}
+              <div class="card-body">
+                <h5 class="card-title">{{ post.title }}</h5>
+                {% set summary = post.summary or post.subtitle %}
+                  <p class="card-text">{{ summary }}</p>
+              </div>
+              <div class="card-footer d-flex justify-content-between align-items-center">
+                <small class="text-muted">{{ post.category|capitalize }}</small>
+                <a href="{{ url_for('posts.post_detail', slug=post.slug) }}" class="btn btn-sm btn-primary">
+                  View project
+                </a>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <p class="text-muted">No featured web app projects yet.</p>
+        {% endfor %}
       </div>
-    </div>
+    </section>
+
+    <!-- Other Projects (second row) -->
+    <section>
+      <h2 class="mb-4">Other Projects</h2>
+      <div class="row row-cols-1 row-cols-md-4 g-4">
+        {% for post in other_projects %}
+          {% set thumb = post.thumbnail_url or post.img_url %}
+          <div class="col">
+            <div class="card h-100">
+              {% if thumb %}
+                <img src="{{ thumb }}" class="card-img-top project-thumb" alt="{{ post.title }}">
+              {% endif %}
+              <div class="card-body">
+                <h6 class="card-title">{{ post.title }}</h6>
+                {% set summary = post.summary or post.subtitle %}
+                  <p class="card-text small">{{ summary }}</p>
+              </div>
+              <div class="card-footer d-flex justify-content-between align-items-center">
+                <small class="text-muted">{{ post.category|capitalize }}</small>
+                <a href="{{ url_for('posts.post_detail', slug=post.slug) }}" class="btn btn-sm btn-outline-primary">
+                  View
+                </a>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <p class="text-muted">No other projects yet.</p>
+        {% endfor %}
+      </div>
+    </section>
+
   </div>
-</div>
-
-{% include "footer.html" %}
+</main>
+{% endblock %}

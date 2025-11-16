@@ -1,0 +1,53 @@
+<div class="mb-3">
+    {{ form.title.label(class="form-label fw-bold") }}
+    {{ form.title(class="form-control") }}
+</div>
+
+<div class="mb-3">
+    {{ form.subtitle.label(class="form-label fw-bold") }}
+    {{ form.subtitle(class="form-control") }}
+</div>
+
+<div class="mb-3">
+    {{ form.img_url.label(class="form-label fw-bold") }}
+    {{ form.img_url(class="form-control") }}
+</div>
+
+<div class="mb-3">
+    {{ form.body.label(class="form-label fw-bold") }}
+    {{ form.body(class="form-control", rows="8") }}
+</div>
+
+<div class="mb-3">
+    {{ form.summary.label(class="form-label fw-bold") }}
+    {{ form.summary(class="form-control", rows="3") }}
+</div>
+
+<div class="mb-3">
+    {{ form.category.label(class="form-label fw-bold") }}
+    {{ form.category(class="form-select") }}
+</div>
+
+<div class="mb-3">
+    {{ form.thumbnail_url.label(class="form-label fw-bold") }}
+    {{ form.thumbnail_url(class="form-control") }}
+</div>
+
+<div class="mb-3">
+    {{ form.github_url.label(class="form-label fw-bold") }}
+    {{ form.github_url(class="form-control") }}
+</div>
+
+<div class="mb-3">
+    {{ form.live_url.label(class="form-label fw-bold") }}
+    {{ form.live_url(class="form-control") }}
+</div>
+
+<div class="form-check mb-4">
+    {{ form.is_featured(class="form-check-input") }}
+    {{ form.is_featured.label(class="form-check-label fw-bold") }}
+</div>
+
+<div class="text-end">
+    {{ form.submit(class="btn btn-primary") }}
+</div>

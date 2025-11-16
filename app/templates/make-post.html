@@ -1,7 +1,6 @@
-{% block content %}
-{% include "header.html" %}
+{% extends "base.html" %}
 
-<!-- Page Header -->
+{% block content %}
 <header
   class="masthead"
   style="background-image: url('../static/assets/img/edit-bg.jpg')"
@@ -10,14 +9,12 @@
     <div class="row gx-4 gx-lg-5 justify-content-center">
       <div class="col-md-10 col-lg-8 col-xl-7">
         <div class="page-heading">
-          {% if is_edit: %}
+          {% if is_edit %}
           <h1>Edit Post</h1>
-          {% else: %}
+          {% else %}
           <h1>New Post</h1>
           {% endif %}
-          <span class="subheading"
-            >You're going to make a great blog post!</span
-          >
+          <span class="subheading">You're going to make a great blog post!</span>
         </div>
       </div>
     </div>
@@ -28,54 +25,12 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-8 col-md-10 mx-auto">
-        {{ ckeditor.load() }}
-        {{ ckeditor.config(name='body') }}
-        <form method="POST" novalidate>
+        <form method="POST">
           {{ form.hidden_tag() }}
-          <div class="mb-3">
-            {{ form.title.label(class="form-label") }}
-            {{ form.title(class="form-control") }}
-          </div>
-          <div class="mb-3">
-            {{ form.subtitle.label(class="form-label") }}
-            {{ form.subtitle(class="form-control") }}
-          </div>
-          <div class="mb-3">
-            {{ form.img_url.label(class="form-label") }}
-            {{ form.img_url(class="form-control") }}
-          </div>
-          <div class="mb-3">
-            {{ form.summary.label(class="form-label") }}
-            {{ form.summary(class="form-control", rows=3) }}
-          </div>
-          <div class="mb-3">
-            {{ form.category.label(class="form-label") }}
-            {{ form.category(class="form-control") }}
-          </div>
-          <div class="mb-3">
-            {{ form.thumbnail_url.label(class="form-label") }}
-            {{ form.thumbnail_url(class="form-control") }}
-          </div>
-          <div class="mb-3">
-            {{ form.github_url.label(class="form-label") }}
-            {{ form.github_url(class="form-control") }}
-          </div>
-          <div class="mb-3">
-            {{ form.live_url.label(class="form-label") }}
-            {{ form.live_url(class="form-control") }}
-          </div>
-          <div class="mb-3">
-            {{ form.body.label(class="form-label") }}
-            {{ form.body(class="form-control") }}
-          </div>
-          <div class="form-check mb-3">
-            {{ form.is_featured(class="form-check-input", id="is_featured") }}
-            {{ form.is_featured.label(class="form-check-label", for="is_featured") }}
-          </div>
-          {{ form.submit(class="btn btn-primary") }}
+          {% include "admin/_form_post_fields.html" %}
         </form>
       </div>
     </div>
   </div>
 </main>
-{% include "footer.html" %} {% endblock %}
+{% endblock %}

@@ -10855,3 +10855,17 @@ header.masthead .post-heading .meta a {
 }
 
 
+
+.admin-masthead {
+    padding-top: 60px !important;
+    padding-bottom: 60px !important;
+}
+
+
+.project-thumb {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    display: block;
+}
+
