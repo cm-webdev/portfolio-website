@@ -22,6 +22,24 @@
   <div class="container px-4 px-lg-5">
     <div class="row gx-4 gx-lg-5 justify-content-center">
       <div class="col-md-10 col-lg-8 col-xl-7">
+        <div class="mb-4">
+            {% if post.live_url %}
+            <div class="mb-2">
+                <strong>Live URL:</strong>
+                <a href="{{ post.live_url }}" target="_blank" rel="noopener noreferrer">
+                    {{ post.live_url | replace('https://', '') | replace('http://', '') | trim('/') }}
+                </a>
+            </div>
+            {% endif %}
+            {% if post.github_url %}
+            <div class="mb-2">
+                <strong>GitHub:</strong>
+                <a href="{{ post.github_url }}" target="_blank" rel="noopener noreferrer">
+                    {{ post.github_url | replace('https://github.com/', '') | trim('/') }}
+                </a>
+            </div>
+            {% endif %}
+        </div>
         {{ post.body|safe }}
         {% if current_user.is_authenticated and current_user.id == 1 %}
         <div class="d-flex justify-content-end mb-4">
